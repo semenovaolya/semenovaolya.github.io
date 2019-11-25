@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Preview Habrahabra content</title>
+    <style>
+        #article-preview {
+            width: 100vw;
+            min-height: 50vh;
+            border: 1px solid black;
+        }
+        button {
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="article-title"></div>
+    <div id="article-preview"></div>
+    <div class="article-link"><a href="#" id="article-link"></a></div>
+    <button id="previous-article">Предыдущая статья</button>
+    <button id="next-article">Следующая статья</button>
+
+    <script type="text/javascript">
+	    let xhr = new XMLHttpRequest();
+	    let xmlhr = new XMLHttpRequest();
+
+        let title = document.getElementById('article-title');
+        let preview = document.getElementById('article-preview');
+        let link = document.getElementById('article-link');
+        let next_article = document.getElementById('next-article');
+        let previous_article = document.getElementById('previous-article');
+
+        xhr.open('GET', 'http://lazyprog.ru/cc640/l3/json.php');
+		xhr.responseType = 'json';
+		xhr.send();
+
+        xmlhr.open('GET', 'http://lazyprog.ru/cc640/l3/json.php?action=getDescriptions');
+        xmlhr.responseType = 'json';
+        xmlhr.send();
+
+        xhr.onload = function() {
+        	if (xhr.status != 200) { // HTTP ошибка?
+                // обработаем ошибку
+                alert( 'Ошибка: ' + xhr.status);
+                return;
+            }
+        
+        	number_article = 0; //номер статьи
+        	title.innerHTML = xhr.response[number_article].title;
+        	link.innerHTML = xhr.response[number_article].url;
+        	link.href = link.innerHTML;
+
+        	previous_article.onclick = () => {
+        		if (number_article > 0) {
+        			number_article -= 1;
+        		} else {
+        			number_article = xhr.response.length - 1;
+        		}
+
+        		title.innerHTML = xhr.response[number_article].title;
+        		link.innerHTML = xhr.response[number_article].url;
+        		link.href = link.innerHTML;
+        	}  
+
+        	next_article.onclick = () => {
+        		if (number_article == xhr.response.length - 1) {
+        			number_article = 0;
+        		} else {
+        			number_article += 1;
+        		}
+ 
+        		title.innerHTML = xhr.response[number_article].title;
+        		link.innerHTML = xhr.response[number_article].url;
+        		link.href = link.innerHTML;
+        	}
+        }
+
+        xmlhr.onload = function() {
+        	if (xmlhr.status != 200) { 
+                alert( 'Ошибка: ' + xhr.status);
+                return;
+            }
+
+        	preview.innerHTML = xmlhr.response[number_article];
+
+        	previous_article.addEventListener('click', () => preview.innerHTML = xmlhr.response[number_article]);
+        	
+        	next_article.addEventListener('click', () => preview.innerHTML = xmlhr.response[number_article]);
+        }
+
+        xhr.onerror = function() {
+        	alert(`Ошибка`);
+        }
+
+        xmlhr.onerror = function () {
+        	alert(`Ошибка`);
+        }
+    </script>
+</body>
+</html>
